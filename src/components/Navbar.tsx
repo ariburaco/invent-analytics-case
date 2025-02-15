@@ -9,50 +9,49 @@ import {
   useTheme,
   useScrollTrigger,
   alpha,
-} from '@mui/material'
-import { Link } from 'react-router-dom'
-import MovieFilterIcon from '@mui/icons-material/MovieFilter'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import Brightness4Icon from '@mui/icons-material/Brightness4'
-import Brightness7Icon from '@mui/icons-material/Brightness7'
+} from '@mui/material';
+import { Link } from 'react-router-dom';
+import MovieFilterIcon from '@mui/icons-material/MovieFilter';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 interface NavbarProps {
-  toggleTheme: () => void
-  isDarkMode: boolean
+  toggleTheme: () => void;
+  isDarkMode: boolean;
 }
 
 const Navbar = ({ toggleTheme, isDarkMode }: NavbarProps) => {
-  const theme = useTheme()
+  const theme = useTheme();
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 0,
-  })
+  });
 
   return (
-    <AppBar 
-      position="fixed" 
+    <AppBar
+      position="fixed"
       elevation={trigger ? 4 : 0}
       sx={{
-        backgroundColor: trigger 
-          ? theme.palette.background.default 
+        backgroundColor: trigger
+          ? theme.palette.background.default
           : alpha(theme.palette.primary.main, 0.95),
         backdropFilter: 'blur(8px)',
-        transition: theme.transitions.create(['background-color', 'box-shadow']),
-        color: trigger 
-          ? theme.palette.text.primary 
-          : '#fff',
+        transition: theme.transitions.create([
+          'background-color',
+          'box-shadow',
+        ]),
+        color: trigger ? theme.palette.text.primary : '#fff',
       }}
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <MovieFilterIcon 
-            sx={{ 
-              display: { xs: 'none', md: 'flex' }, 
+          <MovieFilterIcon
+            sx={{
+              display: { xs: 'none', md: 'flex' },
               mr: 1,
-              color: trigger 
-                ? theme.palette.primary.main 
-                : '#fff'
-            }} 
+              color: trigger ? theme.palette.primary.main : '#fff',
+            }}
           />
           <Typography
             variant="h6"
@@ -74,13 +73,11 @@ const Navbar = ({ toggleTheme, isDarkMode }: NavbarProps) => {
 
           {/* Mobile Logo */}
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <MovieFilterIcon 
-              sx={{ 
-                mr: 1, 
-                color: trigger 
-                  ? theme.palette.primary.main 
-                  : '#fff'
-              }} 
+            <MovieFilterIcon
+              sx={{
+                mr: 1,
+                color: trigger ? theme.palette.primary.main : '#fff',
+              }}
             />
             <Typography
               variant="h6"
@@ -101,28 +98,24 @@ const Navbar = ({ toggleTheme, isDarkMode }: NavbarProps) => {
           {/* Actions */}
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
-              <IconButton 
-                onClick={toggleTheme} 
-                sx={{ 
-                  color: trigger 
-                    ? 'inherit'
-                    : '#fff'
+              <IconButton
+                onClick={toggleTheme}
+                sx={{
+                  color: trigger ? 'inherit' : '#fff',
                 }}
               >
                 {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title="View source code">
               <IconButton
                 component="a"
-                href="https://github.com/yourusername/movie-explorer"
+                href="https://github.com/ariburaco/invent-analytics-case"
                 target="_blank"
                 rel="noopener noreferrer"
-                sx={{ 
-                  color: trigger 
-                    ? 'inherit'
-                    : '#fff'
+                sx={{
+                  color: trigger ? 'inherit' : '#fff',
                 }}
               >
                 <GitHubIcon />
@@ -132,7 +125,7 @@ const Navbar = ({ toggleTheme, isDarkMode }: NavbarProps) => {
         </Toolbar>
       </Container>
     </AppBar>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

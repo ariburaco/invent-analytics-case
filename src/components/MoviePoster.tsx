@@ -20,6 +20,7 @@ const MoviePoster = ({ posterUrl, title, height = 200 }: MoviePosterProps) => {
           alignItems: 'center',
           justifyContent: 'center',
         }}
+        data-testid="movie-poster-fallback"
       >
         <LocalMoviesIcon
           sx={{
@@ -41,6 +42,7 @@ const MoviePoster = ({ posterUrl, title, height = 200 }: MoviePosterProps) => {
         width: '100%',
         objectFit: 'cover',
       }}
+      data-testid="movie-poster-image"
     />
   )
 }
