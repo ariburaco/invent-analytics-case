@@ -2,7 +2,7 @@ import axios from 'axios';
 import { SearchResponse, MovieDetails } from '../types/movie';
 
 const API_KEY = 'fef088d5'; // Replace with your actual API key
-const BASE_URL = 'http://www.omdbapi.com';
+const BASE_URL = 'https://www.omdbapi.com';
 
 // Custom error class for OMDB API errors
 export class OmdbError extends Error {

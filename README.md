@@ -35,8 +35,8 @@ A modern React application for searching and exploring movies using the OMDB API
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/movie-explorer.git
-cd movie-explorer
+git clone https://github.com/ariburaco/invent-analytics-case
+cd invent-analytics-case
 ```
 
 2. Install dependencies:
@@ -45,13 +45,7 @@ cd movie-explorer
 pnpm install
 ```
 
-3. Create a `.env` file in the root directory and add your OMDB API key:
-
-```bash
-VITE_OMDB_API_KEY=your_api_key_here
-```
-
-4. Start the development server:
+3. Start the development server:
 
 ```bash
 pnpm dev
