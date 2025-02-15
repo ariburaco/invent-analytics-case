@@ -237,7 +237,10 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
                 <Paper
                   sx={{
                     p: 1.5,
-                    maxWidth: '80%',
+                    maxWidth: {
+                      xs: '95%',
+                      sm: '80%'
+                    },
                     backgroundColor:
                       message.role === 'user'
                         ? theme.palette.primary.main
@@ -246,10 +249,26 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
                       message.role === 'user'
                         ? theme.palette.primary.contrastText
                         : theme.palette.text.primary,
+                    mx: { xs: 1, sm: 0 },
+                    wordBreak: 'break-word',
+                    '& img': {
+                      maxWidth: '100%',
+                      height: 'auto'
+                    }
                   }}
                 >
                   {message.role === 'user' ? (
-                    <Typography variant="body1">{message.content}</Typography>
+                    <Typography 
+                      variant="body1"
+                      sx={{
+                        fontSize: {
+                          xs: '0.9rem',
+                          sm: '1rem'
+                        }
+                      }}
+                    >
+                      {message.content}
+                    </Typography>
                   ) : (
                     <MarkdownMessage content={message.content} />
                   )}
