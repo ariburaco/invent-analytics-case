@@ -91,7 +91,7 @@ const Navbar = ({ toggleTheme, isDarkMode }: NavbarProps) => {
                 textDecoration: 'none',
               }}
             >
-              MOVIES
+              MOVIES EXPLORER
             </Typography>
           </Box>
 

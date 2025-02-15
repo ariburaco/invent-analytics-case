@@ -10,14 +10,15 @@ import {
   Chip,
   Tooltip,
   Collapse,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { useTheme } from '@mui/material/styles';
-import { MovieDetails } from '../types/movie';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { MovieDetails } from '../types/movie';
 
 interface ChatWithMovieProps {
   movie: MovieDetails;
@@ -82,6 +83,7 @@ const MarkdownMessage = ({ content }: { content: string }) => (
 
 export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -126,7 +128,9 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages, status]);
 
   return (
@@ -140,7 +144,7 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
         p: 2,
         maxWidth: 1200,
         mx: 'auto',
-        height: '600px',
+        height: '800px',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -159,7 +163,30 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
           Suggested questions:
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 1,
+            flexWrap: 'wrap',
+            maxHeight: isMobile ? '120px' : 'auto',
+            overflowY: isMobile ? 'auto' : 'visible',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: theme.palette.background.paper,
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: theme.palette.divider,
+              borderRadius: '4px',
+              '&:hover': {
+                background: theme.palette.action.hover,
+              },
+            },
+            pb: isMobile ? 1 : 0,
+          }}
+        >
           {PREDEFINED_PROMPTS.map((prompt) => (
             <Chip
               key={prompt}
@@ -167,7 +194,19 @@ export const ChatWithMovie = ({ movie }: ChatWithMovieProps) => {
               onClick={() => handlePromptClick(prompt)}
               icon={<AutoAwesomeIcon />}
               variant="outlined"
-              sx={{ cursor: 'pointer' }}
+              sx={{
+                cursor: 'pointer',
+                maxWidth: isMobile ? '90%' : 'none',
+                height: 'auto',
+                '& .MuiChip-label': {
+                  whiteSpace: 'normal',
+                  padding: '8px 12px',
+                  lineHeight: 1.2,
+                },
+                '& .MuiChip-icon': {
+                  marginLeft: '8px',
+                },
+              }}
             />
           ))}
         </Box>

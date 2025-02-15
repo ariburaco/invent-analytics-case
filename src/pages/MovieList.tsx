@@ -1,30 +1,32 @@
+import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   CircularProgress,
   FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Pagination,
   Select,
   TextField,
   Typography,
-  IconButton,
-  InputAdornment,
 } from '@mui/material';
+import { useQueryState } from 'nuqs';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSearchMovies } from '../hooks/useMovieHooks';
-import { useMovieSearchParams } from '../hooks/useSearchParams';
-import ImdbLink from '../components/ImdbLink';
 import EmptyState from '../components/EmptyState';
-import { OmdbError } from '../services/api';
+import ImdbLink from '../components/ImdbLink';
 import MoviePoster from '../components/MoviePoster';
-import ClearIcon from '@mui/icons-material/Clear';
-import SearchIcon from '@mui/icons-material/Search';
 import PageHead from '../components/PageHead';
+import { useSearchMovies } from '../hooks/useMovieHooks';
+import { OmdbError } from '../services/api';
 
 const INITIAL_PARAMS = {
   initialSearch: '',
@@ -33,34 +35,78 @@ const INITIAL_PARAMS = {
   initialPage: 1,
 } as const;
 
+const SEARCH_TYPES = [
+  { value: 'movie', label: 'Movies' },
+  { value: 'series', label: 'TV Series' },
+  { value: 'episode', label: 'Episodes' },
+] as const;
+
 const MovieList = () => {
   const navigate = useNavigate();
-  const {
-    search,
-    type,
-    year,
-    page,
-    updateSearch,
-    updateType,
-    updateYear,
-    updatePage,
-  } = useMovieSearchParams({ initialParams: INITIAL_PARAMS });
+  const [search, setSearch] = useQueryState('s');
+  const [type, setType] = useQueryState('type');
+  const [year, setYear] = useQueryState('y');
+  const [page, setPage] = useQueryState('page');
 
-  const currentSearch = search ?? INITIAL_PARAMS.initialSearch;
-  const currentType = type ?? INITIAL_PARAMS.initialType;
-  const currentYear = year ?? INITIAL_PARAMS.initialYear;
-  const currentPage = page ?? INITIAL_PARAMS.initialPage;
+  // Initialize form state with URL params
+  const [searchForm, setSearchForm] = useState({
+    searchText: search ?? '',
+    searchType: type ?? INITIAL_PARAMS.initialType,
+    searchYear: year ?? '',
+  });
 
-  const { data, isLoading, error, isFetching } = useSearchMovies(
-    currentSearch,
-    currentType,
-    currentYear,
-    currentPage
+  const { data, isLoading, error, isFetching, refetch } = useSearchMovies(
+    search ?? '',
+    type ?? INITIAL_PARAMS.initialType,
+    year ?? '',
+    Number(page) || INITIAL_PARAMS.initialPage
   );
+
+  useEffect(() => {
+    if (search && search.trim() !== '') {
+      refetch();
+    }
+  }, [search, type, year, page]);
+
+  const handlePageChange = async (
+    _: React.ChangeEvent<unknown>,
+    newPage: number
+  ) => {
+    await setPage(newPage.toString());
+  };
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    if (!searchForm.searchText.trim()) {
+      return;
+    }
+
+    await setSearch(searchForm.searchText.trim());
+    await setType(searchForm.searchType);
+    if (searchForm.searchYear) {
+      await setYear(searchForm.searchYear);
+    } else {
+      await setYear(null);
+    }
+    await setPage('1');
+
+    await refetch();
+  };
+
+  const handleClearSearch = async () => {
+    setSearchForm((prev) => ({ ...prev, searchText: '' }));
+    await setSearch(null);
+  };
+
+  const handleClearYear = async () => {
+    setSearchForm((prev) => ({ ...prev, searchYear: '' }));
+    await setYear(null);
+  };
 
   const totalPages = data ? Math.ceil(Number(data.totalResults) / 10) : 0;
   const hasNoResults = !isLoading && data?.Search?.length === 0;
-  const isInitialState = !currentSearch && !isLoading && !error;
+  const isInitialState = !search || search.trim() === '';
 
   const totalResults = data?.totalResults ? Number(data.totalResults) : 0;
   const searchMetadata = search
@@ -69,14 +115,14 @@ const MovieList = () => {
       } - ${totalResults} movies found`
     : 'Search movies, TV shows, and episodes from OMDB database';
 
-  // Clear individual field
-  const handleClearSearch = () => updateSearch('');
-  const handleClearYear = () => updateYear('');
-
   return (
     <Box sx={{ pt: 2 }}>
       <PageHead
-        title={search ? `Search: ${search}` : 'Movie Explorer'}
+        title={
+          searchForm.searchText
+            ? `Search: ${searchForm.searchText}`
+            : 'Movie Explorer'
+        }
         description={searchMetadata}
         keywords={
           [
@@ -85,72 +131,133 @@ const MovieList = () => {
             'movies',
             'TV shows',
             'film database',
-            search ?? '',
-            year ?? '',
+            searchForm.searchText ?? '',
+            searchForm.searchYear ?? '',
           ].filter(Boolean) as string[]
         }
       />
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={8}>
-          <TextField
-            fullWidth
-            label="Search Movies"
-            value={search}
-            onChange={(e) => updateSearch(e.target.value)}
-            placeholder="Enter a movie title..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: search ? (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClearSearch}
-                    edge="end"
-                    size="small"
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} md={2}>
-          <FormControl fullWidth>
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={type}
-              label="Type"
-              onChange={(e) => updateType(e.target.value)}
+
+      <form onSubmit={handleSearch}>
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Search Movies"
+              value={searchForm.searchText}
+              onChange={(e) => {
+                setSearchForm((prev) => ({
+                  ...prev,
+                  searchText: e.target.value,
+                }));
+              }}
+              placeholder={
+                searchForm.searchType === 'episode'
+                  ? 'Enter episode title...'
+                  : 'Enter title...'
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: searchForm.searchText ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClearSearch}
+                      edge="end"
+                      size="small"
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={2}>
+            <FormControl fullWidth>
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={searchForm.searchType}
+                label="Type"
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  setSearchForm((prev) => ({
+                    ...prev,
+                    searchType: newType,
+                    searchText:
+                      newType === 'episode' || prev.searchType === 'episode'
+                        ? ''
+                        : prev.searchText,
+                  }));
+                }}
+              >
+                {SEARCH_TYPES.map(({ value, label }) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} md={2}>
+            <TextField
+              fullWidth
+              label="Year"
+              value={searchForm.searchYear}
+              onChange={(e) => {
+                setSearchForm((prev) => ({
+                  ...prev,
+                  searchYear: e.target.value,
+                }));
+              }}
+              placeholder={
+                searchForm.searchType === 'episode'
+                  ? 'Episode air year'
+                  : 'Release year'
+              }
+              InputProps={{
+                endAdornment: searchForm.searchYear ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClearYear}
+                      edge="end"
+                      size="small"
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={2}>
+            <Button
+              variant="contained"
+              size="large"
+              type="submit"
+              startIcon={<SearchIcon />}
+              sx={{
+                width: '100%',
+                borderRadius: '25px',
+                padding: '12px 30px',
+                background: 'linear-gradient(45deg, #4ECDC4 30%, #21cbf3 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                '&:hover': {
+                  background:
+                    'linear-gradient(45deg, #4ECDC4 60%, #21cbf3 90%)',
+                },
+              }}
             >
-              <MenuItem value="movie">Movie</MenuItem>
-              <MenuItem value="series">TV Series</MenuItem>
-              <MenuItem value="episode">Episode</MenuItem>
-            </Select>
-          </FormControl>
+              Search
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={2}>
-          <TextField
-            fullWidth
-            label="Year"
-            value={year}
-            onChange={(e) => updateYear(e.target.value)}
-            placeholder="e.g., 2024"
-            InputProps={{
-              endAdornment: year ? (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleClearYear} edge="end" size="small">
-                    <ClearIcon />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            }}
-          />
-        </Grid>
-      </Grid>
+      </form>
 
       {error ? (
         <Alert severity="error">
@@ -167,7 +274,7 @@ const MovieList = () => {
       ) : isInitialState ? (
         <EmptyState type="initial" />
       ) : hasNoResults ? (
-        <EmptyState type="no-results" searchTerm={currentSearch} />
+        <EmptyState type="no-results" searchTerm={search ?? ''} />
       ) : (
         <>
           <Grid container spacing={3}>
@@ -218,8 +325,8 @@ const MovieList = () => {
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination
                 count={totalPages}
-                page={currentPage}
-                onChange={(_, value) => updatePage(value)}
+                page={Number(page) || INITIAL_PARAMS.initialPage}
+                onChange={handlePageChange}
                 color="primary"
               />
             </Box>

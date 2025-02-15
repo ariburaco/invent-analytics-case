@@ -1,10 +1,21 @@
 import { createTheme, ThemeOptions } from '@mui/material'
 
+// Get the saved theme from localStorage or default to 'light'
+export const getStoredTheme = (): 'light' | 'dark' => {
+  const storedTheme = localStorage.getItem('theme') as 'light' | 'dark'
+  return storedTheme || 'light'
+}
+
+// Save theme to localStorage
+export const saveTheme = (theme: 'light' | 'dark') => {
+  localStorage.setItem('theme', theme)
+}
+
 export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
   palette: {
     mode,
     primary: {
-      main: '#2196f3',
+      main: '#4ECDC4',
     },
     secondary: {
       main: '#ff4081',
@@ -41,4 +52,4 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
 export const createAppTheme = (mode: 'light' | 'dark') => 
   createTheme(getThemeOptions(mode))
 
-export default createAppTheme('light') 
+export default createAppTheme(getStoredTheme()) 

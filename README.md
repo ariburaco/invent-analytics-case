@@ -6,12 +6,13 @@ A modern React application for searching and exploring movies using the OMDB API
 
 - 🎬 Search movies, TV series, and episodes
 - 🎯 Filter by type and year
-- 🎨 Light/Dark theme support
-- 📱 Responsive design
+- 🎨 Light/Dark theme with system preference sync and persistence
+- 📱 Responsive design with mobile-optimized UI
 - 🔍 Detailed movie information
 - 🔗 IMDb integration
-- 🚀 Fast and efficient with debounced search
+- 🎯 URL state management with nuqs
 - 📊 Pagination support
+- 🚫 404 page handling
 
 ## Tech Stack
 
@@ -19,9 +20,11 @@ A modern React application for searching and exploring movies using the OMDB API
 - TypeScript
 - Material-UI (MUI)
 - React Query
-- React Router
+- React Router v7
+- Nuqs (URL state management)
 - Axios
 - Vite
+- Vitest & Testing Library
 
 ## Getting Started
 
@@ -45,7 +48,12 @@ cd invent-analytics-case
 pnpm install
 ```
 
-3. Start the development server:
+3. Configure environment variables:
+
+   - Copy `.env.example` to `.env`
+   - Update the `VITE_AI_API_URL` if needed
+
+4. Start the development server:
 
 ```bash
 pnpm dev
@@ -64,17 +72,18 @@ src/
 ├── types/         # TypeScript type definitions
 ├── App.tsx        # Main application component
 ├── main.tsx       # Application entry point
-└── theme.ts       # MUI theme configuration
+└── theme.ts       # MUI theme configuration with persistence
 ```
 
 ## Features in Detail
 
 ### Search Functionality
 
-- Real-time search with debouncing
+- Advanced search with URL state management
 - Filter by type (movie, series, episode)
-- Year filter
-- Pagination for results
+- Year filter with clear functionality
+- Optimized search with controlled refetching
+- Persistent search parameters in URL
 
 ### Movie Details
 
@@ -85,10 +94,38 @@ src/
 
 ### UI/UX
 
-- Responsive design for all screen sizes
-- Dark/Light theme toggle
+- Responsive design with mobile-optimized interface
+- System-synced Dark/Light theme with persistence
 - Loading states and error handling
-- Clean and modern interface
+- Clean and modern interface with gradient buttons
+- Hidden scrollbars for cleaner appearance
+- Improved suggested questions UI for mobile
+
+### AI Movie Chat
+
+- 🤖 Interactive AI-powered movie discussions
+- 💡 Predefined smart prompts for quick insights
+- 📝 Markdown-formatted responses for better readability
+- 🎯 Context-aware responses based on movie details
+- 💬 Real-time streaming responses
+- 📱 Mobile-optimized chat interface
+- 🎨 Elegant UI with gradient buttons and animations
+- ⚡ Error handling and loading states
+- 🔄 Automatic scrolling to latest messages
+
+## Testing
+
+The project includes a comprehensive test suite using:
+
+- Vitest
+- Testing Library (React, Jest DOM, User Event)
+- Coverage reporting with v8
+
+Run tests with:
+
+```bash
+pnpm test
+```
 
 ## Contributing
 
@@ -107,3 +144,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [OMDB API](http://www.omdbapi.com/) for providing movie data
 - [Material-UI](https://mui.com/) for the component library
 - [React Query](https://tanstack.com/query/latest) for data fetching
+- [Nuqs](https://nuqs.47ng.com/) for URL state management

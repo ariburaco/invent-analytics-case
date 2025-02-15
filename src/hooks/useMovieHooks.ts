@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { getMovieById, searchMovies } from '../services/api';
-
-const SEARCH_DEBOUNCE_MS = 300;
 
 export const useSearchMovies = (
   search: string,
@@ -10,25 +7,15 @@ export const useSearchMovies = (
   year: string,
   page: number
 ) => {
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
-  const [debouncedType, setDebouncedType] = useState(type);
-  const [debouncedYear, setDebouncedYear] = useState(year);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-      setDebouncedType(type);
-      setDebouncedYear(year);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => clearTimeout(timer);
-  }, [search, type, year]);
-
   return useQuery({
-    queryKey: ['movies', debouncedSearch, debouncedType, debouncedYear, page],
-    queryFn: () =>
-      searchMovies(debouncedSearch, debouncedType, debouncedYear, page),
-    enabled: debouncedSearch.length >= 2,
+    queryKey: ['movies', search, type, year, page],
+    queryFn: () => searchMovies(search, type, year, page),
+    enabled: false, // Don't auto-fetch
+    staleTime: Infinity, // Prevent auto-refetching
+    retry: false, // Don't retry on error for search queries
+    // Only allow refetch if we have a search term
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
